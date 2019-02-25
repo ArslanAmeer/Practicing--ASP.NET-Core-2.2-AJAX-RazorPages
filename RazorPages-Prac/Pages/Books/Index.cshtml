@@ -1,0 +1,90 @@
+﻿@page
+@model RazorPages_Prac.Pages.Books.IndexModel
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<div class="jumbotron">
+    <div class="row">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-group col-4">
+            <label for="name" asp-for="Book.Name"></label>
+            <input class="form-control" type="text" id="name" name="name" asp-for="Book.Name" />
+            <span asp-validation-for="Book.Name" class="text-danger"></span>
+        </div>
+        <div class="form-group col-4">
+            <label for="isbn" asp-for="Book.ISBN"></label>
+            <input class="form-control" type="text" id="isbn" name="isbn" asp-for="Book.ISBN" />
+            <span asp-validation-for="Book.ISBN" class="text-danger"></span>
+        </div>
+        <div class="form-group col-4">
+            <label for="author" asp-for="Book.Author"></label>
+            <input class="form-control" type="text" id="author" name="author" asp-for="Book.Author" />
+            <span asp-validation-for="Book.Author" class="text-danger"></span>
+        </div>
+    </div>
+    <button class="btn btn-info btn-block" id="submit" type="button">SUBMIT</button>
+</div>
+
+<table class="table" id="booksTable">
+    <thead class="table-dark">
+        <tr>
+            <td>@Html.DisplayNameFor(model => model.Book.Name)</td>
+            <td>@Html.DisplayNameFor(model => model.Book.ISBN)</td>
+            <td>@Html.DisplayNameFor(model => model.Book.Author)</td>
+            <td>Actions</td>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+@section Scripts
+    {
+    <script type="text/javascript">
+        $(document).ready(() => {
+            GetData();
+        });
+
+        // READ: Get data with AJAX into Table ------------------------
+        function GetData() {
+            var html = "";
+            debugger;
+            $.ajax({
+                url: "/Books/Index?handler=AllBooks",
+                type: "GET",
+                dataType: "json",
+                success: function (result) {
+                    debugger;
+                    if (result.length !== 0) {
+                        $.each(result,
+                            function (key, item) {
+                                html += " <tr id=" + item.id + "><td>" +
+                                    item.name +
+                                    "</td><td>" +
+                                    item.isbn +
+                                    "</td><td>" +
+                                    item.author +
+                                    "</td><td>" +
+                                    "<button class='btn btn-link' onclick='DeleteData(" + item.id + ")'>Delete</button> | " +
+                                    "<button class='btn btn-link' onclick='EditData(this)'>Edit</button>" +
+                                    "</td></tr>";
+                            });
+                        $("#booksTable > tbody").html(html);
+                    } else {
+                        html += "<tr><td><td><td>No Data Found</td></td></td></tr>";
+                        $("#booksTable > tbody").html(html);
+                    }
+
+                },
+                error: function (errormessage) {
+                    alert("Something Went Wrong on Data Load");
+                    console.log(errormessage.responseText);
+                }
+            });
+        }
+
+    </script>
+}
