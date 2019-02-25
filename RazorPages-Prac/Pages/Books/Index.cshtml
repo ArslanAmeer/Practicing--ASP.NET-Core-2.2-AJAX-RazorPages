@@ -28,7 +28,7 @@
     </div>
     <button class="btn btn-info btn-block" id="submit" type="button">SUBMIT</button>
 </div>
-
+<div class="alert alert-success" role="alert" style="display: none"> </div>
 <table class="table" id="booksTable">
     <thead class="table-dark">
         <tr>
@@ -85,6 +85,35 @@
                 }
             });
         }
+
+        // DELETE: Delete data with AJAX ------------------------
+
+        function DeleteData(bookId) {
+
+            var sure = confirm("Do You Want To Delete This Record?");
+            debugger;
+            if (sure) {
+                $.ajax({
+                    url: "/Books/Index?handler=DeleteBook&bookId=" + bookId,
+                    type: "DELETE",
+                    dataType: "json",
+                    beforeSend: function (xhr) {
+                        debugger;
+                        xhr.setRequestHeader("MY-XSRF-TOKEN",
+                            $('input:hidden[name="__RequestVerificationToken"]').val());
+                    },
+                    success: function (result) {
+                        $('.alert').html(result).fadeIn(800).delay(3000).fadeOut('medium');
+                        GetData();
+                    },
+                    error: function (errormessage) {
+                        alert(errormessage.responseText);
+                    }
+                });
+            }
+
+        }
+
 
     </script>
 }

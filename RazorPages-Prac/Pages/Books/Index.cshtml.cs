@@ -31,5 +31,14 @@ namespace RazorPages_Prac.Pages.Books
             }
         }
 
+        public IActionResult OnDeleteDeleteBook(int bookId)
+        {
+            using (_db)
+            {
+                _db.Books.Remove(_db.Books.Find(bookId));
+                _db.SaveChanges();
+            }
+            return new JsonResult("Delete Successfully");
+        }
     }
 }
