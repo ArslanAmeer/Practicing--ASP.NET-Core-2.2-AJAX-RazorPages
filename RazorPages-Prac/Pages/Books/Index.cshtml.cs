@@ -33,12 +33,24 @@ namespace RazorPages_Prac.Pages.Books
 
         public IActionResult OnDeleteDeleteBook(int bookId)
         {
+            Book book = new Book();
             using (_db)
             {
-                _db.Books.Remove(_db.Books.Find(bookId));
+                book = _db.Books.Find(bookId);
+                _db.Books.Remove(book);
                 _db.SaveChanges();
             }
-            return new JsonResult("Delete Successfully");
+            return new JsonResult($"{book.Name}: Deleted Successfully");
+        }
+
+        public async Task<IActionResult> OnPostAddBook([FromBody] Book book)
+        {
+            using (_db)
+            {
+                _db.Books.Add(book);
+                await _db.SaveChangesAsync();
+            }
+            return new JsonResult($"{book.Name}: Added Successfully");
         }
     }
 }

@@ -46,9 +46,18 @@
     <script type="text/javascript">
         $(document).ready(() => {
             GetData();
+            $("#submit").click(() => {
+                debugger;
+                var book = new Object();
+                book.Name = $("#name").val();
+                book.ISBN = $("#isbn").val();
+                book.Author = $("#author").val();
+                AddData(book);
+            });
         });
 
         // READ: Get data with AJAX into Table ------------------------
+
         function GetData() {
             var html = "";
             debugger;
@@ -89,7 +98,6 @@
         // DELETE: Delete data with AJAX ------------------------
 
         function DeleteData(bookId) {
-
             var sure = confirm("Do You Want To Delete This Record?");
             debugger;
             if (sure) {
@@ -112,6 +120,39 @@
                 });
             }
 
+        }
+
+        // CREATE: Add new data with AJAX (Single Data)------------------------
+
+        function AddData(book) {
+            $.ajax({
+                url: "/Books/Index?handler=AddBook",
+                type: "POST",
+                data: JSON.stringify(book),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                beforeSend: function (xhr) {
+                    debugger;
+                    xhr.setRequestHeader("MY-XSRF-TOKEN",
+                        $('input:hidden[name="__RequestVerificationToken"]').val());
+                },
+                success: function (response) {
+                    if (response != null) {
+                        $('.alert').html(response).fadeIn(800).delay(3000).fadeOut('medium');
+                        GetData();
+                        $("input[type=text]").val("");
+
+                    } else {
+                        alert("Something went wrong");
+                    }
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
         }
 
 
