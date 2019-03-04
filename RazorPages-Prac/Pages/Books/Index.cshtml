@@ -5,11 +5,11 @@
 }
 
 <h1>Index</h1>
-
 <div class="jumbotron">
     <div class="row">
         @Html.AntiForgeryToken()
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="text" name="bookId" id="bookId" hidden />
         <div class="form-group col-4">
             <label for="name" asp-for="Book.Name"></label>
             <input class="form-control" type="text" id="name" name="name" asp-for="Book.Name" />
@@ -26,7 +26,11 @@
             <span asp-validation-for="Book.Author" class="text-danger"></span>
         </div>
     </div>
-    <button class="btn btn-info btn-block" id="submit" type="button">SUBMIT</button>
+    <div class="btn btn-group">
+        <button class="btn btn-info btn-block" id="submit" type="button">SUBMIT</button>
+        <button id="update" type="submit" class="btn btn-primary" style="display: none">Update Data</button>
+        <button id="clear" type="button" class="btn btn-warning" style="display: none">Cancel</button>
+    </div>
     <div style="height: 5px; margin-top: 15px">
         <div class="alert alert-success" role="alert" style="display: none"> </div>
     </div>
@@ -47,8 +51,11 @@
 @section Scripts
     {
     <script type="text/javascript">
+
         $(document).ready(() => {
+
             GetData();
+
             $("#submit").click(() => {
                 debugger;
                 var book = new Object();
@@ -57,6 +64,23 @@
                 book.Author = $("#author").val();
                 AddData(book);
             });
+
+            $("#update").click(() => {
+                var book = new Object();
+                book.Id = $("#bookId").val();
+                book.Name = $("#name").val();
+                book.ISBN = $("#isbn").val();
+                book.Author = $("#author").val();
+                UpdateData(book);
+            });
+
+            $("#clear").click(() => {
+                $("#update").hide();
+                $("#submit").show();
+                $("input[type=text]").val("");
+                $("#clear").hide();
+            });
+
         });
 
         // READ: Get data with AJAX into Table ------------------------
@@ -158,6 +182,57 @@
             });
         }
 
+        // UPDATE: Edit/Update data with AJAX ------------------------
+
+        function EditData(data) {
+            var id = $(data).closest('tr').attr('id');
+            var name = $(data).closest('tr').find('td:eq(0)').text();   // Table Data (name)
+            var isbn = $(data).closest('tr').find('td:eq(1)').text();   // Table Data (ISBN)
+            var author = $(data).closest('tr').find('td:eq(2)').text(); // Table DAta (Author)
+            $("#bookId").val(id);
+            $("#name").val(name);
+            $("#isbn").val(isbn);
+            $("#author").val(author);
+            $("#update").show().after('');
+            $("#submit").hide();
+            $("#addToDb").hide();
+            $("#clear").show();
+            $('html, body').animate({
+                scrollTop: $(".jumbotron").offset().top
+            }, 500);
+        }
+
+        function UpdateData(book) {
+            if (book != null) {
+                $.ajax({
+                    url: "/Books/Index?handler=UpdateBook",
+                    type: "PUT",
+                    data: JSON.stringify(book),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    beforeSend: function (xhr) {
+                        debugger;
+                        xhr.setRequestHeader("MY-XSRF-TOKEN",
+                            $('input:hidden[name="__RequestVerificationToken"]').val());
+                    },
+                    success: function (response) {
+                        GetData();
+                        $("#clear").hide();
+                        $("#update").hide();
+                        $("#submit").show();
+                        $("#addToDb").show();
+                        $("input[type=text]").val("");
+                        $('.alert').html(response).fadeIn(800).delay(3000).fadeOut('medium');
+                    },
+                    failure: function (response) {
+                        alert("Failed To Update Data");
+                    },
+                    error: function (response) {
+                        alert("Something Bad Happened");
+                    }
+                });
+            }
+        }
 
     </script>
 }

@@ -21,8 +21,6 @@ namespace RazorPages_Prac.Pages.Books
         [BindProperty]
         public Book Book { get; set; }
 
-        //public List<Book> Books { get; set; }
-
         public async Task<IActionResult> OnGetAllBooks()
         {
             using (_db)
@@ -51,6 +49,16 @@ namespace RazorPages_Prac.Pages.Books
                 await _db.SaveChangesAsync();
             }
             return new JsonResult($"{book.Name}: Added Successfully");
+        }
+
+        public async Task<IActionResult> OnPutUpdateBook([FromBody] Book book)
+        {
+            using (_db)
+            {
+                _db.Books.Update(book);
+                await _db.SaveChangesAsync();
+            }
+            return new JsonResult($"{book.Name}: Update Successfully");
         }
     }
 }
